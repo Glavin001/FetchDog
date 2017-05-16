@@ -448,6 +448,7 @@ function animate() {
 	if (scene.getObjectByName("ball") != null) {
 		if(!ballreset && dog.position.distanceTo(ball.position) < 10.0) {
 			dogHasBall = true;
+			bark.play();
 			scene.remove(ball);
 			scene.remove(ballTrack);
 		}
