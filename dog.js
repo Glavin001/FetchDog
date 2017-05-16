@@ -87,7 +87,8 @@ function init() {
 	var music = new Audio('sounds/music.mp3');
 	bark = new Audio('sounds/bark.wav');
 	music.loop = true;
-	music.volume = 0.25;
+	music.volume = 0.1;
+	bark.volume = 0.1
 	music.play()
 
 	// dog
