@@ -353,7 +353,7 @@ function init() {
 				ball.setLinearVelocity(new THREE.Vector3(0, 0, 0));
 			} else {
 				if (ball.position.y < 1) {
-					ball.setLinearVelocity(ball.getLinearVelocity().multiplyScalar(0.95));
+					ball.setLinearVelocity(ball.getLinearVelocity().multiplyScalar(0.94));
 				}
 			}
 		}
