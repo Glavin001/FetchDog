@@ -71,7 +71,7 @@ function init() {
 	renderer.setClearColor( 0xffffff );
 	renderer.setSize( window.innerWidth, window.innerHeight );
 	renderer.shadowMap.enabled = true;
-	renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+	renderer.shadowMap.type = THREE.PCFShadowMap;
 	renderer.autoClear = false;
 	document.body.appendChild( renderer.domElement);
 
@@ -87,8 +87,8 @@ function init() {
 	var music = new Audio('sounds/music.mp3');
 	bark = new Audio('sounds/bark.wav');
 	music.loop = true;
-	music.volume = 0.1;
-	bark.volume = 0.1
+	music.volume = 0.05;
+	bark.volume = 0.05;
 	music.play()
 
 	// dog
@@ -233,31 +233,43 @@ function init() {
 			object.scale.set(12.0, 12.0, 12.0)
 			object.position.set(375, 0, 375)
 			scene.add(object);
+			object.castShadow = true;
+			object.recieveShadow = true;
 	});
 	objLoader.load( 'models/tree/tree.obj', function ( object ) {
 		object.scale.set(12.0, 12.0, 12.0)
 		object.position.set(-375, 0, -375)
 		scene.add(object);
+		object.castShadow = true;
+		object.recieveShadow = true;
 	});
 	objLoader.load( 'models/tree/tree.obj', function ( object ) {
 		object.scale.set(12.0, 12.0, 12.0)
 		object.position.set(-375, 0, 375)
 		scene.add(object);
+		object.castShadow = true;
+		object.recieveShadow = true;
 	});
 	objLoader.load( 'models/tree/tree.obj', function ( object ) {
 		object.scale.set(12.0, 12.0, 12.0)
 		object.position.set(375, 0, -375)
 		scene.add(object);
+		object.castShadow = true;
+		object.recieveShadow = true;
 	});
 	objLoader.load( 'models/tree/tree.obj', function ( object ) {
 		object.scale.set(12.0, 12.0, 12.0)
 		object.position.set(300, 0, 200)
 		scene.add(object);
+		object.castShadow = true;
+		object.recieveShadow = true;
 	});
 	objLoader.load( 'models/tree/tree.obj', function ( object ) {
 		object.scale.set(12.0, 12.0, 12.0)
 		object.position.set(-100, 0, -200)
 		scene.add(object);
+		object.castShadow = true;
+		object.recieveShadow = true;
 	});
 
 
@@ -269,14 +281,12 @@ function init() {
 	light = new THREE.SpotLight( 0xffffff, 1, 0, Math.PI / 2 );
 	light.position.set( 0, 750, 1000 );
 	light.target.position.set( 0, 0, 0 );
-
 	light.castShadow = true;
-
 	light.shadow = new THREE.LightShadow( new THREE.PerspectiveCamera( 50, 1, 1200, 2500 ) );
 	light.shadow.bias = 0.0001;
-
 	light.shadow.mapSize.width = 2048;
 	light.shadow.mapSize.height = 2048;
+	light.shadow.darkness = 1.0;
 	scene.add( light );
 
 	//Map Camera
@@ -367,19 +377,14 @@ function animate() {
 	scene.simulate();
 	clockdelta = clock.getDelta();
 	mixer.update(clockdelta);
-	
 	var w = window.innerWidth, h = window.innerHeight;
 	var mapWidth = w/5, mapHeight = h/5;
-
 	// setViewport parameters:
 	//  lower_left_x, lower_left_y, viewport_width, viewport_height
 	renderer.setViewport( 0, 0, w, h );
 	renderer.clear();
-	
 	// full display
-	// renderer.setViewport( 0, 0, SCREEN_WIDTH - 2, 0.5 * SCREEN_HEIGHT - 2 );
 	renderer.render( scene, camera );
-	
 	// minimap (overhead orthogonal camera)
 	//  lower_left_x, lower_left_y, viewport_width, viewport_height
 	renderer.setViewport( 10, h - mapHeight - 10, mapWidth, mapHeight );
