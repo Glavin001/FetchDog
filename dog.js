@@ -68,7 +68,8 @@ function init() {
 	clock = new THREE.Clock();
 
 	renderer = new THREE.WebGLRenderer({ antialias: true });
-	renderer.setClearColor( 0xffffff );
+	// renderer.setClearColor( 0xffffff );
+	// renderer.setClearAlpha(1.0);
 	renderer.setSize( window.innerWidth, window.innerHeight );
 	renderer.shadowMap.enabled = true;
 	renderer.shadowMap.type = THREE.PCFShadowMap;
@@ -119,7 +120,7 @@ function init() {
 		dogTrack.rotation.set(Math.PI/2, 0, Math.PI);
 		dog.add(dogTrack);
 
-		dogCamera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 1000 );
+		dogCamera = new THREE.PerspectiveCamera( 90, window.innerWidth / window.innerHeight, 1, 1000 );
 		dogCamera.position.set(0, 10, 0)
 		dog.add(dogCamera);
 	});
@@ -397,18 +398,18 @@ function animate() {
 	var mapWidth = w/5, mapHeight = h/5;
 	// setViewport parameters:
 	//  lower_left_x, lower_left_y, viewport_width, viewport_height
+	renderer.clear()
 	renderer.setViewport( 0, 0, w, h );
-	// renderer.clear();
 	renderer.render( scene, camera );
 
-	// minimap (overhead orthogonal camera)
-	//  lower_left_x, lower_left_y, viewport_width, viewport_height
-	renderer.setViewport( 10, h - mapHeight - 10, mapWidth, mapHeight );
-	renderer.render( scene, mapCamera );
-
 	//dogView
+	renderer.clearDepth()
 	renderer.setViewport( w - 10 - w/4, h - h/4 - 10, w/4, h/4 );
 	renderer.render( scene, dogCamera );
+
+	// minimap (overhead orthogonal camera)
+	renderer.setViewport( 10, h - mapHeight - 10, mapWidth, mapHeight );
+	renderer.render( scene, mapCamera );
 
 	var time = performance.now();
 	var delta = ( time - prevTime ) / 1000;
@@ -490,7 +491,7 @@ function animate() {
 	playerTrack.position.set(myPosition.x, 2500, myPosition.z);
 	playerTrack.rotation.set(Math.PI/2, 0, camera.getWorldRotation().y - Math.PI)
 	ballTrack.position.set(ball.position.x, 2500, ball.position.z);
-	legoMan.position.set(myPosition.x, 6.0, myPosition.z + 1.0)
+	legoMan.position.set(myPosition.x, controls.getObject().position.y  - 7.0, myPosition.z + 1.0)
 	legoMan.rotation.set(0, Math.PI + camera.getWorldRotation().y, 0)
 	prevTime = time;
 }
