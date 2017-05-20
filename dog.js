@@ -1,7 +1,7 @@
 var init, render, ball, cameraball, loader,
 		renderer, scene, ground_material, ground, 
 		light, camera, camControls, raycaster, mouseCoords, dog, mixer, walk, clock, clockdelta, tree, 
-		mapCamera, playerTrack, ballTrack, bark;
+		mapCamera, playerTrack, ballTrack, bark, dogCamera, legoMan;
 
 Physijs.scripts.worker = 'libjs/physijs_worker.js';
 Physijs.scripts.ammo = 'ammo.js';
@@ -106,7 +106,6 @@ function init() {
 		walk = mixer.clipAction(geometry.animations[ 0 ]);
 		walk.setEffectiveWeight(1);
 		walk.enabled = true;
-		// walk.setLoop(THREE.LoopPingPong)
 		walk.warp(4, 4, 0.1);
 		dog.position.set(0, 0, -50)
 		scene.add(dog);
@@ -119,6 +118,10 @@ function init() {
 		dogTrack.position.set(0, 2500, 0)
 		dogTrack.rotation.set(Math.PI/2, 0, Math.PI);
 		dog.add(dogTrack);
+
+		dogCamera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 1000 );
+		dogCamera.position.set(0, 10, 0)
+		dog.add(dogCamera);
 	});
 	
 	// Materials
@@ -133,10 +136,10 @@ function init() {
 	// Ground
 	NoiseGen = new SimplexNoise;
 		
-	ground_geometry = new THREE.PlaneGeometry(800, 800, 10, 10);
+	ground_geometry = new THREE.PlaneGeometry(800, 800, 30, 30);
 	for ( var i = 0; i < ground_geometry.vertices.length; i++ ) {
 		var vertex = ground_geometry.vertices[i];
-		vertex.z = NoiseGen.noise( vertex.x / 10, vertex.y / 10 ) * 10;
+		vertex.z = NoiseGen.noise( vertex.x / 200, vertex.y / 200 ) * 10;
 	}
 	ground_geometry.computeFaceNormals();
 	ground_geometry.computeVertexNormals();
@@ -146,8 +149,8 @@ function init() {
 		ground_geometry,
 		ground_material,
 		0, // mass
-		10,
-		10
+		30,
+		30
 	);
 	ground.rotation.x = Math.PI / -2;
 	ground.receiveShadow = true;
@@ -224,54 +227,66 @@ function init() {
 
 	// trees
 	var mtlLoader = new THREE.MTLLoader();
+	mtlLoader.setMaterialOptions(THREE.DoubleSide)
 	var objLoader = new THREE.OBJLoader();
 	var tree_materials = mtlLoader.load( 'models/tree/tree.mtl', function( materials ) {
 		materials.preload();
 		objLoader.setMaterials( materials );
 	});
 	objLoader.load( 'models/tree/tree.obj', function ( object ) {
-			object.scale.set(12.0, 12.0, 12.0)
-			object.position.set(375, 0, 375)
+			object.scale.set(15.0, 15.0, 15.0)
+			object.position.set(360, -2, 360)
 			scene.add(object);
 			object.castShadow = true;
 			object.recieveShadow = true;
 	});
 	objLoader.load( 'models/tree/tree.obj', function ( object ) {
-		object.scale.set(12.0, 12.0, 12.0)
-		object.position.set(-375, 0, -375)
+		object.scale.set(15.0, 15.0, 15.0)
+		object.position.set(-360, -2, -360)
 		scene.add(object);
 		object.castShadow = true;
 		object.recieveShadow = true;
 	});
 	objLoader.load( 'models/tree/tree.obj', function ( object ) {
-		object.scale.set(12.0, 12.0, 12.0)
-		object.position.set(-375, 0, 375)
+		object.scale.set(15.0, 15.0, 15.0)
+		object.position.set(-360, -2, 360)
 		scene.add(object);
 		object.castShadow = true;
 		object.recieveShadow = true;
 	});
 	objLoader.load( 'models/tree/tree.obj', function ( object ) {
-		object.scale.set(12.0, 12.0, 12.0)
-		object.position.set(375, 0, -375)
+		object.scale.set(15.0, 15.0, 15.0)
+		object.position.set(360, -2, -360)
 		scene.add(object);
 		object.castShadow = true;
 		object.recieveShadow = true;
 	});
 	objLoader.load( 'models/tree/tree.obj', function ( object ) {
-		object.scale.set(12.0, 12.0, 12.0)
-		object.position.set(300, 0, 200)
+		object.scale.set(15.0, 15.0, 15.0)
+		object.position.set(300, -2, 200)
 		scene.add(object);
 		object.castShadow = true;
 		object.recieveShadow = true;
 	});
 	objLoader.load( 'models/tree/tree.obj', function ( object ) {
-		object.scale.set(12.0, 12.0, 12.0)
-		object.position.set(-100, 0, -200)
+		object.scale.set(15.0, 15.0, 15.0)
+		object.position.set(-100, -2, -200)
 		scene.add(object);
 		object.castShadow = true;
 		object.recieveShadow = true;
 	});
-
+	mtlLoader.load( 'models/lego/LegoMan.mtl', function( materials ) {
+		materials.preload();
+		var objLoader = new THREE.OBJLoader();
+		objLoader.setMaterials( materials );
+		objLoader.load( 'models/lego/LegoMan.obj', function ( object ) {
+			legoMan = object;
+			legoMan.scale.set(3.0, 3.0, 3.0)
+			legoMan.position.set(0.0, 6.0, 0.0)
+			legoMan.rotation.set(0, Math.PI, 0);
+			scene.add( legoMan );
+		} );
+	} );
 
 	//light
 	var ambient = new THREE.AmbientLight( 0xFFFFFF );
@@ -305,7 +320,7 @@ function init() {
 	var imagePrefix = "images/Daylight-";
 	var directions  = ["xpos", "xneg", "ypos", "yneg", "zpos", "zneg"];
 	var imageSuffix = ".bmp";
-	var skyGeometry = new THREE.CubeGeometry( 1000, 1000, 1000 );	
+	var skyGeometry = new THREE.CubeGeometry( 800, 800, 800 );	
 	
 	var materialArray = [];
 	for (var i = 0; i < 6; i++)
@@ -319,6 +334,7 @@ function init() {
 	raycaster = new THREE.Raycaster();
 	mouseCoords = new THREE.Vector2();
 
+	//camera
 	camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 1000 );
 	controls = new THREE.PointerLockControls(camera);
 	scene.add( controls.getObject() );
@@ -382,13 +398,17 @@ function animate() {
 	// setViewport parameters:
 	//  lower_left_x, lower_left_y, viewport_width, viewport_height
 	renderer.setViewport( 0, 0, w, h );
-	renderer.clear();
-	// full display
+	// renderer.clear();
 	renderer.render( scene, camera );
+
 	// minimap (overhead orthogonal camera)
 	//  lower_left_x, lower_left_y, viewport_width, viewport_height
 	renderer.setViewport( 10, h - mapHeight - 10, mapWidth, mapHeight );
 	renderer.render( scene, mapCamera );
+
+	//dogView
+	renderer.setViewport( w - 10 - w/4, h - h/4 - 10, w/4, h/4 );
+	renderer.render( scene, dogCamera );
 
 	var time = performance.now();
 	var delta = ( time - prevTime ) / 1000;
@@ -467,10 +487,11 @@ function animate() {
 	}
 
 	//update minimap tracking
-	playerTrack.position.set(myPosition.x, myPosition.y, myPosition.z);
+	playerTrack.position.set(myPosition.x, 2500, myPosition.z);
 	playerTrack.rotation.set(Math.PI/2, 0, camera.getWorldRotation().y - Math.PI)
 	ballTrack.position.set(ball.position.x, 2500, ball.position.z);
-
+	legoMan.position.set(myPosition.x, 6.0, myPosition.z + 1.0)
+	legoMan.rotation.set(0, Math.PI + camera.getWorldRotation().y, 0)
 	prevTime = time;
 }
 
