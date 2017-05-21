@@ -399,12 +399,12 @@ function animate() {
 	// setViewport parameters:
 	//  lower_left_x, lower_left_y, viewport_width, viewport_height
 	renderer.clear()
-	renderer.setViewport( 0, 0, w, h );
+	renderer.setViewport( 0, 0, w/2, h );
 	renderer.render( scene, camera );
 
 	//dogView
 	renderer.clearDepth()
-	renderer.setViewport( w - 10 - w/4, h - h/4 - 10, w/4, h/4 );
+	renderer.setViewport( w/2, 0, w/2, h);
 	renderer.render( scene, dogCamera );
 
 	// minimap (overhead orthogonal camera)
